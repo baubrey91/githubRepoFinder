@@ -14,8 +14,11 @@ class RepoResultsViewController: UIViewController {
 
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
+    
+    //var repos: [GithubRepo]!
+    var repos = [GithubRepo]()
 
-    var repos: [GithubRepo]!
+    @IBOutlet weak var tableView: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,8 +45,9 @@ class RepoResultsViewController: UIViewController {
 
             // Print the returned repositories to the output window
             for repo in newRepos {
-                print(repo)
-            }   
+                self.repos.append(repo)
+            }
+            self.tableView.reloadData()
 
             MBProgressHUD.hide(for: self.view, animated: true)
             }, error: { (error) -> Void in
@@ -75,4 +79,28 @@ extension RepoResultsViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
         doSearch()
     }
+}
+
+extension RepoResultsViewController: UITabBarDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return repos.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "githubRepoCell", for: indexPath) as! GithubRepoTableViewCell
+        let repo = repos[indexPath.row]
+        cell.forksLabel.text = String(describing: repo.forks)
+        cell.nameLabel.text = repo.name
+        cell.starsLabel.text = String(describing: repo.stars)
+        cell.ownerLabel.text = repo.ownerHandle
+        cell.descriptionLabel.text = repo.description
+        
+        return cell
+
+    }
+    
+//    func numberOfSections(in tableView: UITableView) -> Int {
+//        return repos.count
+//    }
 }
